@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM ANTUNES Barbearia - Blumenau</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Configuração de Estilos Personalizados (Paleta Preto & Dourado CORRIGIDA) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'heading': ['Cormorant Garamond', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand': {
+                            'gold': '#C09A46', // Dourado (Tom da Logo)
+                            'light-gold': '#EADCA6',
+                            'dark-bg': '#101010', // Preto
+                            'card-bg': '#181818', // Preto (para cards)
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+
+    <!-- Estilos CSS Internos -->
+    <style>
+        body {
+            background-color: #101010; /* Cor de fundo principal */
+        }
+        /* Animação de revelação ao rolar */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform;
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="font-body bg-brand-dark-bg text-gray-300 antialiased">
+
+    <!-- 
+      Modal de Agendamento (INTEGRADO COM BARBER CONTROL) 
+      - Modal limpo, sem "3 janelas"
+    -->
+    <div id="bookingModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 overflow-y-auto">
+        
+        <!-- Wrapper para centralizar o iframe e o botão X -->
+        <div class="relative w-full max-w-3xl my-auto">
+            
+            <!-- Botão de fechar (X) - posicionado no canto -->
+            <button id="closeModalBtn" class="absolute -top-2 -right-2 text-brand-dark-bg bg-white rounded-full p-1 z-20 shadow-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <!-- 
+              Área de integração da Agenda 
+              Cole o link do seu Barber Control no 'src' abaixo.
+            -->
+            <div class="w-full bg-gray-800 rounded-lg overflow-hidden z-10" style="height: 850px;">
+                <iframe 
+                    src="COLE_O_LINK_DO_SEU_BARBER_CONTROL_AQUI" 
+                    width="100%" 
+                    height="100%" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Header (LOGO REMOVIDO E BOTÃO ESPAÇADO) -->
+    <header class="fixed w-full z-50 transition-all duration-300" id="header">
+        <nav class="container mx-auto px-6 py-4 flex justify-end items-center">
+            
+            <!-- Navegação Desktop -->
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#about" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Sobre</a>
+                <a href="#services" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Serviços</a>
+                <a href="#gallery" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Galeria</a>
+                <a href="#contact" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Contato</a>
+            </div>
+
+            <!-- Botão de Agendamento (Desktop) com margem -->
+            <button class="openModalBtn hidden md:block bg-brand-gold text-brand-dark-bg font-bold py-3 px-6 rounded-md hover:bg-opacity-80 transition-all duration-300 shadow-md shadow-brand-gold/20 ml-8">
+                Agendar Horário
+            </button>
+
+            <!-- Botão Hamburguer (Mobile) -->
+            <button id="mobileMenuBtn" class="md:hidden text-brand-gold">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </nav>
+
+        <!-- Menu Mobile -->
+        <div id="mobileMenu" class="md:hidden bg-brand-card-bg/95 backdrop-blur-lg shadow-lg hidden">
+            <nav class="flex flex-col items-center space-y-4 p-8">
+                <a href="#about" class="text-lg text-gray-300 hover:text-brand-gold transition-colors duration-300">Sobre</a>
+                <a href="#services" class="text-lg text-gray-300 hover:text-brand-gold transition-colors duration-300">Serviços</a>
+                <a href="#gallery" class="text-lg text-gray-300 hover:text-brand-gold transition-colors duration-300">Galeria</a>
+                <a href="#contact" class="text-lg text-gray-300 hover:text-brand-gold transition-colors duration-300">Contato</a>
+                <!-- Botão Mobile -->
+                <button class="openModalBtn w-full bg-brand-gold text-brand-dark-bg font-bold py-3 px-6 rounded-md hover:bg-opacity-80 transition-all duration-300 shadow-md shadow-brand-gold/20 mt-4">
+                    Agendar Horário
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Seção Hero (CORRIGIDO: ALINHADO EM BAIXO) -->
+        <section id="hero" class="h-screen min-h-[700px] flex items-end justify-center text-center relative px-4 pb-32">
+            <!-- Imagem de Fundo -->
+            <div class="absolute inset-0 z-0">
+                <!-- 
+                  TAMANHO RECOMENDADO (FUNDO HERO):
+                  - Proporção: Paisagem (widescreen 16:9).
+                  - Ideal: 1920px (largura) x 1080px (altura).
+                  - Nome do arquivo: hero-background.jpg
+                -->
+                <img src="hero-background.jpg" alt="Interior de barbearia luxuosa com tons de preto e dourado" class="w-full h-full object-cover">
+                <!-- Overlay Escuro para melhorar a leitura do texto -->
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark-bg via-brand-dark-bg/70 to-transparent"></div>
+            </div>
+            
+            <!-- CONTEÚDO ALINHADO EM BAIXO -->
+            <div class="relative z-10 flex flex-col items-center reveal-on-scroll">
+                
+                <!-- Título H1 Removido -->
+                <!-- <p> Removido -->
+                
+                <!-- Botão Hero -->
+                <button class="openModalBtn bg-brand-gold text-brand-dark-bg font-bold py-4 px-10 rounded-md text-lg hover:bg-opacity-80 transition-all duration-300 shadow-lg shadow-brand-gold/30">
+                    Descubra Nossos Rituais
+                </button>
+
+                <!-- FRASE DE IMPACTO -->
+                <p class="text-2xl md:text-3xl text-brand-gold font-heading mt-10">
+                    Transformando visual em confiança.
+                </p>
+            </div>
+        </section>
+
+        <!-- Seção Sobre (COM VÍDEO) -->
+        <section id="about" class="py-24 bg-brand-dark-bg">
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+                <div class="reveal-on-scroll">
+                    <!-- 
+                      TAMANHO RECOMENDADO (VÍDEO SOBRE):
+                      - Proporção: Retrato (vertical).
+                      - Ideal: 800px (largura) x 1000px (altura) (proporção 4:5).
+                      - Nome do arquivo: sobre-video.mp4
+                    -->
+                    <video 
+                        src="sobre-video.mp4" 
+                        alt="Vídeo da barbearia Dom Antunes" 
+                        class="rounded-lg shadow-2xl object-cover w-full h-full max-h-[600px]" 
+                        autoplay 
+                        loop 
+                        muted 
+                        playsinline>
+                    </video>
+                </div>
+                <div class="reveal-on-scroll" style="transition-delay: 150ms;">
+                    <span class="font-heading text-xl text-brand-gold">Nossa Filosofia</span>
+                    <h2 class="font-heading text-5xl text-white font-bold my-6">Transformando visual em confiança.</h2>
+                    <p class="text-lg text-gray-400 mb-6 leading-relaxed">
+                        Na DOM ANTUNES, não oferecemos apenas cortes de cabelo ou barbas bem-feitas. Oferecemos uma experiência. Um refúgio do caos diário, onde a arte tradicional da barbearia é preservada e elevada com um toque de luxo moderno.
+                    </p>
+                    <p class="text-lg text-gray-400 mb-8 leading-relaxed">
+                        Nossos mestres barbeiros são artesãos dedicados, que entendem que cada cliente é único. Usamos apenas os produtos mais refinados e técnicas apuradas para garantir um resultado impecável.
+                    </p>
+                    <div class="border-l-4 border-brand-gold pl-6">
+                        <p class="text-xl italic text-white">"Mais que um corte, um ritual de cuidado e excelência para o homem que valoriza o seu tempo."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Serviços -->
+        <section id="services" class="py-24 bg-brand-card-bg border-y border-brand-gold/10">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 reveal-on-scroll">
+                    <span class="font-heading text-xl text-brand-gold">Rituais Exclusivos</span>
+                    <h2 class="font-heading text-5xl text-white font-bold mt-4">Nossos Serviços</h2>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Serviço 1 -->
+                    <div class="bg-brand-dark-bg p-8 rounded-lg shadow-xl border border-gray-800 reveal-on-scroll hover:border-brand-gold/30 transition-all duration-300">
+                        <h3 class="font-heading text-3xl text-brand-gold mb-4">Corte Dom Antunes</h3>
+                        <p class="text-gray-400 mb-6">Consultoria de visagismo, corte preciso com tesoura e máquina, finalização com produtos premium e lavagem relaxante.</p>
+                        <span class="text-2xl font-body font-bold text-white"></span>
+                    </div>
+                    <!-- Serviço 2 -->
+                    <div class="bg-brand-dark-bg p-8 rounded-lg shadow-xl border border-gray-800 reveal-on-scroll" style="transition-delay: 150ms;">
+                        <h3 class="font-heading text-3xl text-brand-gold mb-4">Barba de Respeito</h3>
+                        <p class="text-gray-400 mb-6">Toalhas quentes, espuma de barbear rica, navalha precisa e óleos essenciais para uma barba perfeitamente alinhada e pele revigorada.</p>
+                        <span class="text-2xl font-body font-bold text-white"></span>
+                    </div>
+                    <!-- Serviço 3 -->
+                    <div class="bg-brand-dark-bg p-8 rounded-lg shadow-xl border border-gray-800 reveal-on-scroll" style="transition-delay: 300ms;">
+                        <h3 class="font-heading text-3xl text-brand-gold mb-4">Tratamento Ouro</h3>
+                        <p class="text-gray-400 mb-6">A experiência completa. O Corte e a Barba de Respeito combinados em um único ritual de puro luxo e relaxamento.</p>
+                        <span class="text-2xl font-body font-bold text-white"></span>
+                    </div>
+                </div>
+                <div class="text-center mt-12 reveal-on-scroll">
+                    <!-- Botão Secundário (Estilo Outline) -->
+                    <button class="openModalBtn text-lg text-brand-gold border border-brand-gold py-3 px-8 rounded-md hover:bg-brand-gold hover:text-brand-dark-bg transition-all duration-300">
+                        Ver Todos os Serviços
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Galeria -->
+        <section id="gallery" class="py-24 bg-brand-dark-bg">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 reveal-on-scroll">
+                    <span class="font-heading text-xl text-brand-gold">Nosso Trabalho</span>
+                    <h2 class="font-heading text-5xl text-white font-bold mt-4">Galeria de Estilos</h2>
+                </div>
+                <!-- Galeria -->
+                <div class="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                    <!-- 
+                      TAMANHO RECOMENDADO (GALERIA):
+                      - Proporção: A ALTURA PODE VARIAR!
+                      - LARGURA consistente (ex: 500px).
+                      - O site ajustará as alturas para o efeito "mosaico".
+                      - Ex: 500x500, 500x700, 500x600, 500x800...
+                      - Nomes dos arquivos: galeria-01.jpg, galeria-02.jpg, etc.
+                    -->
+                    <img src="galeria-01.jpg" alt="Corte de cabelo" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-02.jpg" alt="Barba detalhada" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-03.jpg" alt="Cadeira de barbeiro" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-04.jpg" alt="Navalha" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-05.jpg" alt="Cliente" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-06.jpg" alt="Produtos" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-07.jpg" alt="Corte fade" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                    <img src="galeria-08.jpg" alt="Interior da barbearia" class="rounded-lg shadow-lg reveal-on-scroll w-full">
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Contato (LOCALIZAÇÃO E HORÁRIOS ATUALIZADOS) -->
+        <section id="contact" class="py-24 bg-brand-card-bg border-t border-brand-gold/10">
+            <div class="container mx-auto px-6 grid md:grid-cols-2 gap-16">
+                <div class="reveal-on-scroll">
+                    <span class="font-heading text-xl text-brand-gold">Venha nos Visitar</span>
+                    <h2 class="font-heading text-5xl text-white font-bold my-6">Estamos à sua espera</h2>
+                    <p class="text-lg text-gray-400 mb-8 leading-relaxed">
+                        Encontre seu novo refúgio de estilo e bem-estar. Estamos localizados na Ponta Aguda, prontos para oferecer uma experiência inigualável.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex items-start space-x-4">
+                            <svg class="w-8 h-8 text-brand-gold flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <div>
+                                <h3 class="text-xl text-white font-semibold">Endereço</h3>
+                                <p class="text-gray-400">R. República Argentina, 2555 - Ponta Aguda, Blumenau - SC, 89050-001</p>
+                            </div>
+                        </div>
+                        <!-- ÍCONE DE TELEFONE CORRIGIDO -->
+                        <div class="flex items-start space-x-4">
+                            <svg class="w-8 h-8 text-brand-gold flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="text-xl text-white font-semibold">Telefone</h3>
+                                <p class="text-gray-400">(47) 9XXXX-XXXX (WhatsApp)</p>
+                            </div>
+                        </div>
+                        <!-- HORÁRIOS (Placeholder) -->
+                        <div class="flex items-start space-x-4">
+                            <svg class="w-8 h-8 text-brand-gold flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <div>
+                                <h3 class="text-xl text-white font-semibold">Horários</h3>
+                                <p class="text-gray-400">Segunda a Sexta: 09:00 - 20:00</p>
+                                <p class="text-gray-400">Sábado: 09:00 - 18:00</p>
+                                <p class="text-gray-400">Domingo: Fechado</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal-on-scroll" style="transition-delay: 150ms;">
+                    <!-- Mapa (MAPA ATUALIZADO) -->
+                    <div class="bg-gray-800 w-full h-full min-h-[400px] md:min-h-full rounded-lg shadow-2xl flex items-center justify-center overflow-hidden">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.019520849924!2d-49.07683418495579!3d-26.90289198313904!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94df185d214620ed%3A0x6e3c0b0c6a583e7!2sR.%20Rep%C3%BAblica%20Argentina%2C%202555%20-%20Ponta%20Aguda%2C%20Blumenau%20-%20SC%2C%2089050-001!5e0!3m2!1spt-BR!2sbr!4v1731710055123!5m2!1spt-BR!2sbr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="min-h-[400px] md:min-h-full"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark-bg py-12 border-t border-brand-gold/10">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <!-- Logo (REMOVIDO DO RODAPÉ) -->
+            <div class="flex justify-center space-x-6 mb-6">
+                <!-- ÍCONE DO INSTAGRAM CORRIGIDO -->
+                <a href="https://www.instagram.com/domantunesbarbearia/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-brand-gold transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.149-4.771-1.699-4.919-4.92-.058-1.265-.069-1.644-.069-4.849s.011-3.584.069-4.85c.149-3.227 1.664-4.771 4.919-4.919C8.416 2.175 8.796 2.163 12 2.163m0-2.163C8.74 0 8.333.011 7.053.062 2.695.272.273 2.69.063 7.053.011 8.333 0 8.74 0 12s.011 3.667.063 4.947c.21 4.358 2.633 6.78 6.99 6.99.869.043 1.222.052 4.102.052s3.233-.009 4.102-.052c4.358-.21 6.78-2.633 6.99-6.99.043-.869.052-1.222.052-4.102s-.009-3.233-.052-4.102C23.728 2.695 21.306.273 16.947.063 15.667.011 15.26 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.88 1.44 1.44 0 000-2.88z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-brand-gold transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+                </a>
+            </div>
+            <p>&copy; <span id="currentYear"></span> DOM ANTUNES Barbearia. Todos os direitos reservados.</p>
+            <p class="text-sm text-gray-600 mt-2">Design por @Celiopimenteloficial/@DigitalConectaOficial</p>
+        </div>
+    </footer>
+
+
+    <!-- Scripts JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Atualizar Ano do Copyright ---
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // --- Lógica do Header Transparente ao Rolar ---
+            const header = document.getElementById('header');
+            const scrollThreshold = 50;
+            const changeHeaderBg = () => {
+                if (window.scrollY > scrollThreshold) {
+                    header.classList.add('bg-brand-card-bg/95', 'backdrop-blur-lg', 'shadow-lg', 'border-b', 'border-brand-gold/10');
+                } else {
+                    header.classList.remove('bg-brand-card-bg/95', 'backdrop-blur-lg', 'shadow-lg', 'border-b', 'border-brand-gold/10');
+                }
+            };
+            window.addEventListener('scroll', changeHeaderBg);
+            changeHeaderBg(); // Executa na carga para o caso de a página recarregar no meio
+
+            // --- Lógica do Menu Mobile ---
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            // Fecha o menu mobile ao clicar em um link
+            mobileMenu.querySelectorAll('a, button').forEach(item => {
+                item.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            // --- Lógica do Modal de Agendamento ---
+            const modal = document.getElementById('bookingModal');
+            const openModalBtns = document.querySelectorAll('.openModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            const openModal = () => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.classList.add('opacity-100');
+                document.body.style.overflow = 'hidden'; // Impede a rolagem do fundo
+            };
+
+            const closeModal = () => {
+                modal.classList.add('opacity-0');
+                modal.classList.remove('opacity-100');
+                setTimeout(() => {
+                    modal.classList.add('pointer-events-none');
+                    document.body.style.overflow = 'auto'; // Permite a rolagem do fundo novamente
+                }, 300);
+            };
+
+            openModalBtns.forEach(btn => btn.addEventListener('click', openModal));
+            closeModalBtn.addEventListener('click', closeModal);
+            // Fecha o modal ao clicar fora do conteúdo
+            modal.addEventListener('click', (e) => {
+                // Se o clique foi no fundo (o modal em si) E não no wrapper do iframe
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // --- Lógica de Animação de Revelação ao Rolar ---
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1 // Revela quando 10% do elemento está visível
+            };
+
+            const observerCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target); // Para de observar após revelar
+                    }
+                });
+            };
+
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+            revealElements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+</body>
+</html>
